@@ -2,9 +2,14 @@
 class UsersController < ApplicationController
 
     def index
-        user = User.all
+    
+        if params[:query]
+            name = params[:query][1..-2]
+            user = User.where("username = ?", name)
+        else 
+            user = User.all
+        end
         render json: user
-        # render plain: "hellooooo"
     end
 
     def create
@@ -31,6 +36,21 @@ class UsersController < ApplicationController
         user = User.find(params[:id])
         user.destroy
         render plain: "User deleted."
+    end
+
+    def fave
+        art_id = ArtworkShare
+        .where("artwork_shares.user_fave_id = ?", params[:id])
+        .first
+        .artwork_id
+
+       fav = Artwork.find(art_id)
+
+        if fav
+            render json: fav
+        else
+            render plain: "No favorites found."
+        end
     end
 
     private
